@@ -363,6 +363,72 @@ int cocoa_event_keysym(const void *event)
     if (key_code == kvk_map[i][0])
       return kvk_map[i][1];
   }
+  
+  ///////////////////追加箇所 ここから////////////////////////////////////////
+static const int kvk_map_qwerty[][3] = {
+  { 0x00, XK_a ,XK_A },
+  { 0x01, XK_s ,XK_S },
+  { 0x02, XK_d ,XK_D },
+  { 0x03, XK_f ,XK_F },
+  { 0x04, XK_h ,XK_H },
+  { 0x05, XK_g ,XK_G },
+  { 0x06, XK_z ,XK_Z },
+  { 0x07, XK_x ,XK_X },
+  { 0x08, XK_c ,XK_C },
+  { 0x09, XK_v ,XK_V },
+  { 0x0B, XK_b ,XK_B },
+  { 0x0C, XK_q ,XK_Q },
+  { 0x0D, XK_w ,XK_W },
+  { 0x0E, XK_e ,XK_E },
+  { 0x0F, XK_r ,XK_R },
+  { 0x10, XK_y ,XK_Y },
+  { 0x11, XK_t ,XK_T },
+  { 0x12, XK_1 ,XK_exclam },
+  { 0x13, XK_2 ,XK_quotedbl },
+  { 0x14, XK_3 ,XK_numbersign },
+  { 0x15, XK_4 ,XK_dollar },
+  { 0x16, XK_6 ,XK_ampersand },
+  { 0x17, XK_5 ,XK_percent },
+  { 0x18, XK_asciicircum ,XK_asciitilde },
+  { 0x19, XK_9 ,XK_parenright },
+  { 0x1A, XK_7 ,XK_quoteright },
+  { 0x1B, XK_minus ,XK_equal },
+  { 0x1C, XK_8 ,XK_parenleft },
+  { 0x1D, XK_0 , XK_0 },
+  { 0x1E, XK_bracketleft ,XK_braceleft },
+  { 0x1F, XK_o ,XK_O },
+  { 0x20, XK_u ,XK_U },
+  { 0x21, XK_at ,XK_grave },
+  { 0x22, XK_i ,XK_I },
+  { 0x23, XK_p ,XK_P },
+  { 0x25, XK_l ,XK_L },
+  { 0x26, XK_j ,XK_J },
+  { 0x27, XK_colon ,XK_asterisk },
+  { 0x28, XK_k ,XK_K },
+  { 0x29, XK_semicolon ,XK_plus },
+  { 0x2A, XK_bracketright ,XK_braceright },
+  { 0x2B, XK_comma ,XK_less },
+  { 0x2C, XK_slash ,XK_question },
+  { 0x2D, XK_n ,XK_N },
+  { 0x2E, XK_m ,XK_M },
+  { 0x2F, XK_period ,XK_greater },
+  { 0x5D, XK_backslash, XK_bar },
+  { 0x5E, XK_underscore , XK_underscore },
+  { 0x68, XK_Kanji },
+};
+int my_event_keysym(UInt16 key_code,UInt32 modifiers)
+{
+  int i;
+
+  int shift = (shiftKey & modifiers)? 1 : 0;
+
+  for (i = 0;i < sizeof(kvk_map_qwerty)/sizeof(kvk_map_qwerty[0]);i++){
+    if (key_code == kvk_map_qwerty[i][0])
+      return kvk_map_qwerty[i][1 + shift];
+  }
+  return -1;
+}
+  ///////////////////追加箇所 ここまで////////////////////////////////////////
 
   // OS X always sends the same key code for the decimal key on the
   // num pad, but X11 wants different keysyms depending on if it should
@@ -391,6 +457,11 @@ int cocoa_event_keysym(const void *event)
     modifiers |= shiftKey;
   if ([nsevent modifierFlags] & NSAlternateKeyMask)
     modifiers |= optionKey;
+
+  ///////////////////追加箇所 ここから////////////////////////////////////////
+  int code = my_event_keysym(key_code,modifiers);
+  if ( code != -1 ) return code;
+  ///////////////////追加箇所 ここまで////////////////////////////////////////
 
   chars = key_translate(key_code, modifiers);
   if (chars == nil)
